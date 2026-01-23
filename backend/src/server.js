@@ -24,7 +24,10 @@ if(ENV.NODE_ENV == 'production') {
     })
 }
 
-app.listen(3000, () => {
-    console.log('Server is up and running');
-    connectDB();
-})
+const startServer = async () => {
+    await connectDB();
+    app.listen(ENV.PORT ?? 3000, () => {
+        console.log('Server is up and running');
+    });
+};
+startServer();
