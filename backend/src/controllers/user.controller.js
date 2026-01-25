@@ -107,6 +107,10 @@ export async function addToWishlist(req, res) {
     const { productId } = req.body;
     const user = req.user;
 
+       if (!productId) {
+     return res.status(400).json({ error: "Product ID is required" });
+   }
+
     // check if product is already in the wishlist
     if (user.wishlist.includes(productId)) {
       return res.status(400).json({ error: "Product already in wishlist" });
