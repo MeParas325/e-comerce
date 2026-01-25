@@ -2,6 +2,9 @@ import multer from "multer";
 import path from "path";
 
 const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+    cb(null, os.tmpdir());
+  },
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname || "").toLowerCase();
     const safeExt = [".jpeg", ".jpg", ".png", ".webp"].includes(ext) ? ext : "";
@@ -9,6 +12,7 @@ const storage = multer.diskStorage({
     cb(null, `${unique}${safeExt}`);
   },
 });
+
 
 const fileFilter = (req, file, cb) => {
   const allowedTypes = /jpeg|jpg|png|webp/;

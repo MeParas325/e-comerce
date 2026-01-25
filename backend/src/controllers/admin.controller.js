@@ -26,8 +26,10 @@ export async function createProduct(req, res) {
     });
 
     const uploadResults = await Promise.all(uploadPromises);
-
     const imageUrls = uploadResults.map((result) => result.secure_url);
+
+    // Clean up temp files
+    await Promise.all(req.files.map((file) => fs.unlink(file.path).catch(() => { })));
 
     const product = await Product.create({
       name,
@@ -76,6 +78,15 @@ export async function updateProduct(req, res) {
     if (req.files && req.files.length > 0) {
       if (req.files.length > 3) {
         return res.status(400).json({ message: "Maximum 3 images allowed" });
+      }
+
+      // Delete old images from Cloudinary
+      if (product.images && product.images.length > 0) {
+        const deletePromises = product.images.map((imageUrl) => {
+          const publicId = "products/" + imageUrl.split("/products/")[1]?.split(".")[0];
+          if (publicId) return cloudinary.uploader.destroy(publicId);
+        });
+        await Promise.all(deletePromises.filter(Boolean));
       }
 
       const uploadPromises = req.files.map((file) => {
